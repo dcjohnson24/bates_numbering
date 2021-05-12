@@ -23,4 +23,5 @@ def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1) -> No
 
 
 if __name__ == '__main__':
-    bates('Mallon&Johnson', 'docs')
+    stamp = 'Confidential Treatment Requested by Paulson Investment Company, LLC    PIC'
+    bates(stamp, 'docs')

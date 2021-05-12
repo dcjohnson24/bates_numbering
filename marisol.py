@@ -362,9 +362,8 @@ class GenericTextOverlay(object):
             offset = h  # initial offset
             offset += c.stringWidth(self.text)  # offset for text length
             from_left = c._pagesize[0]-offset
-        # import pdb; pdb.set_trace()
-        # return from_left, from_bottom
-        return 30, c._pagesize[0] / 2 - c.stringWidth(self.text)  
+        return 30, c._pagesize[0] - c.stringWidth(self.text)
+
 
 class BatesOverlay(GenericTextOverlay):
     pass
