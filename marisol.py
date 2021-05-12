@@ -76,7 +76,7 @@ class Marisol(object):
             (str, bool): The file name saved to and success or failure.
         """
         try:
-            filename = document.save(overwrite=self.overwrite)
+            filename = document.save(filename=document.savename, overwrite=self.overwrite)
         except FileExistsError:
             return "EXISTS", False
         else:
@@ -127,11 +127,14 @@ class Document(object):
             start (int): Number to start with.
             area (Area): Area on the document where the number should be drawn
         """
+        self.savename = os.path.splitext(os.path.basename(file))[0]
+        
         try:
             self.file = io.BytesIO(file.read())
         except AttributeError:
             with open(file, "rb") as file:
                 self.file = io.BytesIO(file.read())
+        
         self.reader = PdfFileReader(self.file)
         self.prefix = prefix
         self.fill = fill
@@ -204,7 +207,10 @@ class Document(object):
         Raises:
             FileExistsError: When the file already exists and overwrite is not enabled.
         """
-        filename = filename or "{begin}.pdf".format(begin=self.begin)
+        if filename is None: 
+            filename = "{begin}.pdf".format(begin=self.begin)
+        else:
+            filename = self.savename + f"_{str(self.start).zfill(self.fill)}.pdf"
 
         if os.path.exists(filename) and not overwrite:
             raise FileExistsError("PDF file {} already exists and overwrite is disabled.".format(filename))
@@ -333,7 +339,6 @@ class GenericTextOverlay(object):
              c (canvas.Canvas): canvas to apply the overlay to
         """
         position_left, position_bottom = self.position(c)
-        # import pdb; pdb.set_trace()
         c.saveState()
         c.translate(position_left, position_bottom)
         c.rotate(270)
