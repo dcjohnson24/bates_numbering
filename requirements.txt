@@ -1,3 +1,4 @@
 Marisol==0.3.0
 ipython==7.23.1
 flake8==3.9.1
+tqdm==4.60.0
