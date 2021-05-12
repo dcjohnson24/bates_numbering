@@ -1,5 +1,6 @@
 import os
 from marisol import Marisol, Area
+from tqdm import tqdm
 
 
 def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1) -> None:
@@ -14,7 +15,9 @@ def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1) -> No
     m = Marisol(prefix, zero_pad_length, start, area=Area.BOTTOM_RIGHT)
     file_list = [os.path.join(dirname, f) for f in os.listdir(dirname) 
                  if os.path.isfile(os.path.join(dirname, f))]
-    for f in file_list:
+    pbar = tqdm(file_list)
+    for f in pbar:
+        pbar.set_description(f'Processing {f}')
         m.append(f)
     m.save(overwrite=True)
 
