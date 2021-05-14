@@ -128,8 +128,8 @@ class Document(object):
             start (int): Number to start with.
             area (Area): Area on the document where the number should be drawn
         """
-        self.savename = os.path.splitext(os.path.basename(file))[0]
-        
+        self.savename = os.path.join(os.pardir, 'SEC_Production_Bates', os.path.dirname(file), os.path.basename(file))
+
         try:
             self.file = io.BytesIO(file.read())
         except AttributeError:

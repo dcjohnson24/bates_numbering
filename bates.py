@@ -20,9 +20,11 @@ def bates(prefix: str, file_list: str, zero_pad_length: int=6, start: int=1) -> 
         pbar.set_description(f'Processing {f}')
         try:
             m.append(f)
-        except ValueError:
+        except ValueError as ve:
+            print(f'{f} is a bad file {ve}')
             continue
-        except PyPDF2.utils.PdfReadError: 
+        except PyPDF2.utils.PdfReadError as pe:
+            print(f'{f} has the problem {pe}') 
             continue
     m.save(overwrite=True)
 
