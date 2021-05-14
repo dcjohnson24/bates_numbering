@@ -3,6 +3,7 @@ from enum import Enum
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib import pagesizes
+from tqdm import tqdm
 
 import copy
 import io
@@ -110,7 +111,7 @@ class Marisol(object):
         """
         self.overwrite = overwrite
         with futures.ThreadPoolExecutor(threads) as executor:
-            results = executor.map(self._save_document, self)
+            results = list(tqdm(executor.map(self._save_document, self), total=len(self)))
         return list(results)
 
 
@@ -339,13 +340,15 @@ class GenericTextOverlay(object):
              c (canvas.Canvas): canvas to apply the overlay to
         """
         position_left, position_bottom = self.position(c)
-        c.saveState()
-        c.translate(position_left, position_bottom)
-        c.rotate(270)
-        c.drawCentredString(0, 0, self.text)
-        c.restoreState()
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(position_left, position_bottom, self.text)
+        # c.saveState()
+        # c.translate(position_left, position_bottom)
+        # c.rotate(270)
+        # c.drawCentredString(0, 0, self.text)
+        # c.restoreState()
 
-    def position(self, c, h=30):
+    def position(self, c, h=50):
         """
         Get the appropriate position on the page for the current text given an area.
 
@@ -367,7 +370,15 @@ class GenericTextOverlay(object):
             offset = h  # initial offset
             offset += c.stringWidth(self.text)  # offset for text length
             from_left = c._pagesize[0]-offset
-        return 30, c._pagesize[0] - c.stringWidth(self.text)
+        xpos = c._pagesize[0] - c.stringWidth(self.text)
+        ypos = h
+    
+        if xpos <= 0:
+            xpos += h
+        if ypos <= 0:
+            ypos += h
+
+        return xpos, ypos
 
 
 class BatesOverlay(GenericTextOverlay):
