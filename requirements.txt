@@ -2,3 +2,6 @@ Marisol==0.3.0
 ipython==7.23.1
 flake8==3.9.1
 tqdm==4.60.0
+extract-msg==0.28.7
+pypdf4==1.27.0
+

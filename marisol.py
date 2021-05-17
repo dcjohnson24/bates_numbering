@@ -1,6 +1,6 @@
 from concurrent import futures
 from enum import Enum
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF4 import PdfFileReader, PdfFileWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib import pagesizes
 from tqdm import tqdm
@@ -133,10 +133,13 @@ class Document(object):
         try:
             self.file = io.BytesIO(file.read())
         except AttributeError:
-            with open(file, "rb") as file:
-                self.file = io.BytesIO(file.read())
+            with open(file, "rb") as input:
+                self.file = io.BytesIO(input.read())
         
-        self.reader = PdfFileReader(self.file)
+        self.reader = PdfFileReader(self.file, strict=False)
+
+        if self.reader.isEncrypted:
+            self.reader.decrypt('')
         self.prefix = prefix
         self.fill = fill
         self.start = copy.copy(start)
@@ -348,7 +351,7 @@ class GenericTextOverlay(object):
         # c.drawCentredString(0, 0, self.text)
         # c.restoreState()
 
-    def position(self, c, h=50):
+    def position(self, c, h=20):
         """
         Get the appropriate position on the page for the current text given an area.
 
