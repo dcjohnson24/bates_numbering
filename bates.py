@@ -1,7 +1,8 @@
+from ast import arg
 import os
 from marisol import Marisol, Area
 from tqdm import tqdm
-
+import argparse
 
 def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1) -> None:
     """ Stamp bates numbers on bottom of document
@@ -23,5 +24,9 @@ def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1) -> No
 
 
 if __name__ == '__main__':
-    stamp = 'Confidential Treatment Requested by Paulson Investment Company, LLC    PIC'
-    bates(stamp, 'docs')
+    parser = argparse.ArgumentParser(description='Change string prefix of Bates number')
+    parser.add_argument('prefix', type=str, help='string prefix for the Bates number')
+    parser.add_argument('dirname', type=str, help='directory with the unstamped files')
+    args = parser.parse_args()
+
+    bates(args.prefix, args.dirname)
