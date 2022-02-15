@@ -341,7 +341,7 @@ class GenericTextOverlay(object):
         position_left, position_bottom = self.position(c)
         c.saveState()
         c.translate(position_left, position_bottom)
-        c.rotate(270)
+        c.rotate(0)
         c.drawCentredString(0, 0, self.text)
         c.restoreState()
 
@@ -367,8 +367,8 @@ class GenericTextOverlay(object):
             offset = h  # initial offset
             offset += c.stringWidth(self.text)  # offset for text length
             from_left = c._pagesize[0]-offset
-        return 30, c._pagesize[0] - c.stringWidth(self.text)
-
+        return 30, c._pagesize[0] - c.stringWidth(self.text) #(300, 30) is roughly center
+        
 
 class BatesOverlay(GenericTextOverlay):
     pass
