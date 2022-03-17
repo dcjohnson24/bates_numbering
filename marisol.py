@@ -29,7 +29,7 @@ class RedactionStyle(Enum):
 
 class Marisol(object):
 
-    def __init__(self, prefix, fill, start, area=Area.BOTTOM_RIGHT, x=300, y=30, manual=True):
+    def __init__(self, prefix, fill, start, area=Area.BOTTOM_RIGHT, x=300, y=30, rotation=0, manual=True):
         """
         Marisol Base Class - A collection of documents to be bates numbered.
 
@@ -40,6 +40,7 @@ class Marisol(object):
             area (Area): Area in which to place the bates number.
             x (int): Horizontal position of text. Text moves to the right as x increases.
             y (int): Vertical position of text. Text moves up as y increases.
+            rotation (int): angle of rotation of text.
             manual (bool): whether to manually position text.
         """
         self.prefix = prefix
@@ -48,6 +49,7 @@ class Marisol(object):
         self.area = area
         self.x = x
         self.y = y
+        self.rotation = rotation
         self.manual = manual
 
         self.index = 0
@@ -99,7 +101,7 @@ class Marisol(object):
             marisol.Marisol: The current Marisol instance.
         """
         d = Document(file, self.prefix, self.fill, self.start+self.number, self.area,
-                     self.x, self.y, self.manual)
+                     self.x, self.y, self.rotation, self.manual)
         self.number += len(d)
         self.documents.append(d)
         return self
@@ -123,7 +125,7 @@ class Marisol(object):
 
 class Document(object):
 
-    def __init__(self, file, prefix, fill, start, area, x=300, y=30, manual=True):
+    def __init__(self, file, prefix, fill, start, area, x=300, y=30, rotation=0, manual=True):
         """
         Represents a document to be numbered.
 
@@ -135,6 +137,7 @@ class Document(object):
             area (Area): Area on the document where the number should be drawn
             x (int): Horizontal position of text. Text moves right as x increases
             y (int): Vertical position of text. Text moves up as y increases
+            rotation (int): angle of rotation of text.
             manual (bool): whether to manually position the text
         """
         self.savename = os.path.splitext(os.path.basename(file))[0]
@@ -152,10 +155,11 @@ class Document(object):
         self.area = area
         self.x = x
         self.y = y
+        self.rotation = rotation
         self.manual = manual
 
         self.overlays = {x: None for x in Area}
-        self.overlays[area] = BatesOverlay(None, self.area, x=self.x, y=self.y, manual=self.manual)
+        self.overlays[area] = BatesOverlay(None, self.area, x=self.x, y=self.y, rotation=self.rotation, manual=self.manual)
 
         self.index = 0
 
@@ -340,12 +344,13 @@ class Page(object):
 
 class GenericTextOverlay(object):
 
-    def __init__(self, text, area, x, y, manual):
+    def __init__(self, text, area, x=300, y=30, rotation=0, manual=True):
         self.text = text
         self.area = area
         self.x = x
         self.y = y
-        self.manual = manual 
+        self.rotation = rotation
+        self.manual = manual
 
     def apply(self, c):
         """
@@ -357,7 +362,7 @@ class GenericTextOverlay(object):
         position_left, position_bottom = self.position(c, self.x, self.y, manual=self.manual)
         c.saveState()
         c.translate(position_left, position_bottom)
-        c.rotate(0)
+        c.rotate(self.rotation)
         c.drawCentredString(0, 0, self.text)
         c.restoreState()
 

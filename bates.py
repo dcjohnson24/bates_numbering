@@ -5,7 +5,7 @@ from tqdm import tqdm
 import argparse
 
 def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1,
-          x:int=300, y:int=30, manual=True) -> None:
+          x:int=300, y:int=30, rotation:int=0, manual:bool=True) -> None:
     """ Stamp bates numbers on bottom of document
 
     Args:
@@ -15,8 +15,11 @@ def bates(prefix: str, dirname: str, zero_pad_length: int=6, start: int=1,
         start (int, optional): Where to start numbering from. Defaults to 1.
         x (int, optional): Horizontal position of text. Text moves to the right as x increases.
         y (int, optional): Vertical position of text. Text moves up as y increases.
+        rotation (int, optional): angle of rotation of text.
+        manual (bool, optional): whether to manually position text.
     """
-    m = Marisol(prefix, zero_pad_length, start, area=Area.BOTTOM_RIGHT, x=x, y=y, manual=manual)
+    m = Marisol(prefix, zero_pad_length, start, area=Area.BOTTOM_RIGHT, x=x, y=y,
+                rotation=rotation, manual=manual)
     file_list = [os.path.join(dirname, f) for f in os.listdir(dirname) 
                  if os.path.isfile(os.path.join(dirname, f))]
     pbar = tqdm(file_list)
@@ -32,6 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('dirname', type=str, help='directory with the unstamped files')
     parser.add_argument('--x', help='horizontal position of text', type=int, default=300)
     parser.add_argument('--y', help='vertical position of text', type=int, default=30)
+    parser.add_argument('--rotation', help='rotation of the text', type=int, default=0)
     parser.add_argument('--no-manual', 
                         help='whether to manually set the text position. True if called,'
                         'False otherwise',
@@ -41,4 +45,4 @@ if __name__ == '__main__':
         manual = False
     else:
         manual = True
-    bates(args.prefix, args.dirname, x=args.x, y=args.y, manual=manual)
+    bates(args.prefix, args.dirname, x=args.x, y=args.y, rotation=args.rotation, manual=manual)
