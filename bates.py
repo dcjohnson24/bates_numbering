@@ -37,8 +37,8 @@ if __name__ == '__main__':
     parser.add_argument('--y', help='vertical position of text', type=int, default=30)
     parser.add_argument('--rotation', help='rotation of the text', type=int, default=0)
     parser.add_argument('--no-manual', 
-                        help='whether to manually set the text position. True if called,'
-                        'False otherwise',
+                        help='whether to manually set the text position. True if called, '
+                        'false otherwise',
                         action='store_true')
     args = parser.parse_args()
     if args.no_manual:
