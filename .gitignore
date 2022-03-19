@@ -1,2 +1,4 @@
 .venv
 *.pdf
+
+bates_example_w_errors.py

@@ -1,9 +1,8 @@
 from concurrent import futures
 from enum import Enum
-from PyPDF4 import PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfFileReader, PdfFileWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib import pagesizes
-from tqdm import tqdm
 
 import copy
 import io
@@ -30,7 +29,7 @@ class RedactionStyle(Enum):
 
 class Marisol(object):
 
-    def __init__(self, prefix, fill, start, area=Area.BOTTOM_RIGHT):
+    def __init__(self, prefix, fill, start, area=Area.BOTTOM_RIGHT, x=300, y=30, rotation=0, manual=True):
         """
         Marisol Base Class - A collection of documents to be bates numbered.
 
@@ -39,11 +38,19 @@ class Marisol(object):
             fill (int): Length for zero-filling
             start (int): Starting bates number
             area (Area): Area in which to place the bates number.
+            x (int): Horizontal position of text. Text moves to the right as x increases.
+            y (int): Vertical position of text. Text moves up as y increases.
+            rotation (int): angle of rotation of text.
+            manual (bool): whether to manually position text.
         """
         self.prefix = prefix
         self.fill = fill
         self.start = start
         self.area = area
+        self.x = x
+        self.y = y
+        self.rotation = rotation
+        self.manual = manual
 
         self.index = 0
         self.number = 0
@@ -93,7 +100,8 @@ class Marisol(object):
         Returns:
             marisol.Marisol: The current Marisol instance.
         """
-        d = Document(file, self.prefix, self.fill, self.start+self.number, self.area)
+        d = Document(file, self.prefix, self.fill, self.start+self.number, self.area,
+                     self.x, self.y, self.rotation, self.manual)
         self.number += len(d)
         self.documents.append(d)
         return self
@@ -111,13 +119,13 @@ class Marisol(object):
         """
         self.overwrite = overwrite
         with futures.ThreadPoolExecutor(threads) as executor:
-            results = list(tqdm(executor.map(self._save_document, self), total=len(self)))
+            results = executor.map(self._save_document, self)
         return list(results)
 
 
 class Document(object):
 
-    def __init__(self, file, prefix, fill, start, area):
+    def __init__(self, file, prefix, fill, start, area, x=300, y=30, rotation=0, manual=True):
         """
         Represents a document to be numbered.
 
@@ -127,26 +135,31 @@ class Document(object):
             fill (int): Length to zero-pad number to.
             start (int): Number to start with.
             area (Area): Area on the document where the number should be drawn
+            x (int): Horizontal position of text. Text moves right as x increases
+            y (int): Vertical position of text. Text moves up as y increases
+            rotation (int): angle of rotation of text.
+            manual (bool): whether to manually position the text
         """
-        self.savename = os.path.join(os.pardir, 'SEC_Production_Bates', os.path.dirname(file), os.path.basename(file))
-
+        self.savename = os.path.splitext(os.path.basename(file))[0]
+        
         try:
             self.file = io.BytesIO(file.read())
         except AttributeError:
-            with open(file, "rb") as input:
-                self.file = io.BytesIO(input.read())
+            with open(file, "rb") as file:
+                self.file = io.BytesIO(file.read())
         
-        self.reader = PdfFileReader(self.file, strict=False)
-
-        if self.reader.isEncrypted:
-            self.reader.decrypt('')
+        self.reader = PdfFileReader(self.file)
         self.prefix = prefix
         self.fill = fill
         self.start = copy.copy(start)
         self.area = area
+        self.x = x
+        self.y = y
+        self.rotation = rotation
+        self.manual = manual
 
         self.overlays = {x: None for x in Area}
-        self.overlays[area] = BatesOverlay(None, self.area)
+        self.overlays[area] = BatesOverlay(None, self.area, x=self.x, y=self.y, rotation=self.rotation, manual=self.manual)
 
         self.index = 0
 
@@ -331,9 +344,13 @@ class Page(object):
 
 class GenericTextOverlay(object):
 
-    def __init__(self, text, area):
+    def __init__(self, text, area, x=300, y=30, rotation=0, manual=True):
         self.text = text
         self.area = area
+        self.x = x
+        self.y = y
+        self.rotation = rotation
+        self.manual = manual
 
     def apply(self, c):
         """
@@ -342,47 +359,42 @@ class GenericTextOverlay(object):
         Args:
              c (canvas.Canvas): canvas to apply the overlay to
         """
-        position_left, position_bottom = self.position(c)
-        c.setFont("Helvetica-Bold", 10)
-        c.drawString(position_left, position_bottom, self.text)
-        # c.saveState()
-        # c.translate(position_left, position_bottom)
-        # c.rotate(270)
-        # c.drawCentredString(0, 0, self.text)
-        # c.restoreState()
+        position_left, position_bottom = self.position(c, self.x, self.y, manual=self.manual)
+        c.saveState()
+        c.translate(position_left, position_bottom)
+        c.rotate(self.rotation)
+        c.drawCentredString(0, 0, self.text)
+        c.restoreState()
 
-    def position(self, c, h=20):
+    def position(self, c, x, y, h=15, manual=True):
         """
         Get the appropriate position on the page for the current text given an area.
 
         Args:
             c (canvas.Canvas): Page to get the positioning for
+            x (int): Horizontal position of text. Text moves right as x increases
+            y (int): Vertical position of text. Text moves up as y increases
             h (int): units from bottom or top of page. Default is 15
 
         Returns:
             tuple: the position
         """
-        if self.area in [Area.BOTTOM_LEFT, Area.BOTTOM_RIGHT]:  # top
-            from_bottom = c._pagesize[1] - h  # 15 up from bottom of page
-        elif self.area in [Area.TOP_LEFT, Area.TOP_RIGHT]:  # bottom
-            from_bottom = h  # 15 down from top of page
+        if manual:
+            return x, y #(300, 30) is roughly center 
+        else:
+            if self.area in [Area.BOTTOM_LEFT, Area.BOTTOM_RIGHT]:  # top
+                from_bottom = c._pagesize[1] - h  # 15 up from bottom of page
+            elif self.area in [Area.TOP_LEFT, Area.TOP_RIGHT]:  # bottom
+                from_bottom = h  # 15 down from top of page
 
-        if self.area in [Area.TOP_LEFT, Area.BOTTOM_LEFT]:  # left
-            from_left = h
-        elif self.area in [Area.TOP_RIGHT, Area.BOTTOM_RIGHT]:  # right
-            offset = h  # initial offset
-            offset += c.stringWidth(self.text)  # offset for text length
-            from_left = c._pagesize[0]-offset
-        xpos = c._pagesize[0] - c.stringWidth(self.text)
-        ypos = h
-    
-        if xpos <= 0:
-            xpos += h
-        if ypos <= 0:
-            ypos += h
-
-        return xpos, ypos
-
+            if self.area in [Area.TOP_LEFT, Area.BOTTOM_LEFT]:  # left
+                from_left = h
+            elif self.area in [Area.TOP_RIGHT, Area.BOTTOM_RIGHT]:  # right
+                offset = h  # initial offset
+                offset += c.stringWidth(self.text)  # offset for text length
+                from_left = c._pagesize[0]-offset
+            return 30, c._pagesize[0] - c.stringWidth(self.text) 
+        
 
 class BatesOverlay(GenericTextOverlay):
     pass
