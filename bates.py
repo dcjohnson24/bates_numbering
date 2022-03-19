@@ -46,3 +46,4 @@ if __name__ == '__main__':
     else:
         manual = True
     bates(args.prefix, args.dirname, x=args.x, y=args.y, rotation=args.rotation, manual=manual)
+    
