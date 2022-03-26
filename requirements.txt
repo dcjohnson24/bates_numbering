@@ -4,4 +4,4 @@ flake8==3.9.1
 tqdm==4.60.0
 extract-msg==0.28.7
 pypdf4==1.27.0
-
+dearpygui==1.4.0
