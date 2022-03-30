@@ -1,28 +1,43 @@
 import os
 import sys
-from tabnanny import check
+
 sys.path.append(os.pardir)
 
 import dearpygui.dearpygui as dpg
 from dearpygui.demo import _hsv_to_rgb
 from bates import bates
-
+from threading import Thread
 dpg.create_context()
 
-def callback(sender, app_data):
-    print("Sender: ", sender)
-    print("App Data: ", app_data)
+APP_DATA = {}
 
 
 def check_dir(sender, app_data):
     dirname = app_data['file_path_name']
     dpg.set_value("dirtext", f"{dirname} has been selected")
+    APP_DATA['file_path_name'] = dirname    
+
+def stamp_files(sender, app_data, user_data):
+    prefix = dpg.get_value("prefix")
+    try: 
+        dirname = APP_DATA['file_path_name']
+    except KeyError:
+        dirname = ''
+    xpos = dpg.get_value('xpos') if dpg.does_item_exist('xpos') else 300
+    ypos = dpg.get_value('ypos') if dpg.does_item_exist('ypos') else 30
+    rotation = dpg.get_value('rotation') if dpg.does_item_exist('rotation') else 0
+    
+    dpg.add_loading_indicator(tag="loading", parent="Bates Stamp", pos=(150, 240))    
+    dpg.add_text('All finished!', tag='finished', pos=(150, 250), show=False, parent="Bates Stamp")
+    bates_thread = Thread(target=bates, kwargs={'prefix': prefix, 'dirname': dirname,
+                                         'x': xpos, 'y': ypos,
+                                         'rotation': rotation})
+    bates_thread.start()
+    # bates(prefix=prefix, dirname=dirname, x=xpos, y=ypos, rotation=rotation)
+    if not bates_thread.is_alive():
+        dpg.hide_item('loading')
+        dpg.show_item('finished')
         
-
-def stamp_files(sender, app_data):
-    dpg.add_loading_indicator(parent="Bates Stamp", pos=(150, 240))    
-
-
 def show_group(sender, app_data, user_data):
     if dpg.get_value(sender):
         dpg.show_item(user_data)
@@ -30,19 +45,18 @@ def show_group(sender, app_data, user_data):
         dpg.hide_item(user_data)
 
 
-
 with dpg.window(label="Bates Stamp", width=800, height=300, tag="Bates Stamp"):
     dpg.add_file_dialog(directory_selector=True, show=False, callback=check_dir, tag="file_dialog_id")
     
     dpg.add_button(label="Directory Selector", callback=lambda: dpg.show_item("file_dialog_id"))
-    dpg.add_text('', tag="dirtext")
+    dpg.add_text('', tag="dirtext", color=(255, 255, 0))
 
-    dpg.add_input_text(label="Bates Prefix")
+    dpg.add_input_text(label="Bates Prefix", tag="prefix")
     
     with dpg.group(tag="position", show=False):
-        xpos = dpg.add_input_int(label='x (int)', default_value=300)
-        ypos = dpg.add_input_int(label='y (int)', default_value=30)
-        rotation = dpg.add_input_int(label='rotation', default_value=0, max_value=360)
+        xpos = dpg.add_input_int(label='x (int)', default_value=300, tag='xpos')
+        ypos = dpg.add_input_int(label='y (int)', default_value=30, tag='ypos')
+        rotation = dpg.add_input_int(label='rotation', default_value=0, max_value=360, tag='rotation')
     
     dpg.add_checkbox(label="Set text position manually", tag="checkbox", before="position",
                      callback=show_group, user_data="position")
