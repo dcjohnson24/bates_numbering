@@ -44,11 +44,18 @@ def show_group(sender, app_data, user_data):
     else:
         dpg.hide_item(user_data)
 
+with dpg.font_registry(label='font size'):
+    default_font = dpg.add_font("NotoSerifCJKjp-Medium.otf", 18)
 
-with dpg.window(label="Bates Stamp", width=800, height=300, tag="Bates Stamp"):
-    dpg.add_file_dialog(directory_selector=True, show=False, callback=check_dir, tag="file_dialog_id")
+
+with dpg.window(label="Bates Stamp", width=800, height=600, tag="Bates Stamp"):
+    dpg.bind_font(default_font)
+
+    dpg.add_file_dialog(directory_selector=True, show=False, callback=check_dir, tag="file_dialog_id",
+                        width=500, height=220)
     
     dpg.add_button(label="Directory Selector", callback=lambda: dpg.show_item("file_dialog_id"))
+    
     dpg.add_text('', tag="dirtext", color=(255, 255, 0))
 
     dpg.add_input_text(label="Bates Prefix", tag="prefix")
@@ -69,7 +76,7 @@ with dpg.window(label="Bates Stamp", width=800, height=300, tag="Bates Stamp"):
             dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 3*3, 3*3)
     
     
-    dpg.add_button(label='Stamp!', callback=stamp_files, pos=(150, 200), tag='stamp')
+    dpg.add_button(label='Stamp!', callback=stamp_files, pos=(150, 250), tag='stamp')
     dpg.bind_item_theme('stamp', 'rounded')
     
 
