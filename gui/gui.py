@@ -1,11 +1,11 @@
-import dearpygui.dearpygui as dpg
-from dearpygui.demo import _hsv_to_rgb
-from bates import bates
-
 import os
 import sys
 
 sys.path.append(os.pardir)
+
+import dearpygui.dearpygui as dpg
+from dearpygui.demo import _hsv_to_rgb
+from bates import bates
 
 
 dpg.create_context()
@@ -34,6 +34,7 @@ def stamp_files(sender, app_data):
     bates(prefix=prefix, dirname=dirname, x=xpos, y=ypos, rotation=rotation)
     dpg.hide_item('loading')
     dpg.show_item('finished')
+    dpg.set_value('dirtext', '')
 
 
 def show_group(sender, app_data, user_data):
@@ -55,7 +56,7 @@ with dpg.window(label="Bates Stamp", width=600, height=400, tag="Bates Stamp"):
                         tag="file_dialog_id",
                         width=500, height=220)
 
-    dpg.add_button(label="Directory Selector",
+    dpg.add_button(label="Choose a Directory",
                    callback=lambda: dpg.show_item("file_dialog_id"))
 
     dpg.add_text('', tag="dirtext", color=(255, 255, 0))
@@ -89,8 +90,8 @@ with dpg.window(label="Bates Stamp", width=600, height=400, tag="Bates Stamp"):
     dpg.add_button(label='Stamp!', callback=stamp_files, pos=(150, 250),
                    tag='stamp')
     dpg.bind_item_theme('stamp', 'rounded')
-
-dpg.create_viewport(title='Bates Stamp', width=1200, height=800)
+  
+dpg.create_viewport(title='Bates Stamp', width=800, height=600)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.start_dearpygui()
