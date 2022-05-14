@@ -6,7 +6,7 @@ sys.path.append(os.pardir)
 import dearpygui.dearpygui as dpg
 from dearpygui.demo import _hsv_to_rgb
 from bates import bates
-
+from error_box import show_info, on_selection
 
 dpg.create_context()
 
@@ -14,24 +14,39 @@ APP_DATA = {}
 
 
 def check_dir(sender, app_data):
+    if dpg.is_item_visible('finished'):
+        dpg.hide_item('finished')
     dirname = app_data['file_path_name']
     dpg.set_value("dirtext", f"{dirname} has been selected")
     APP_DATA['file_path_name'] = dirname
 
 
 def stamp_files(sender, app_data):
+    if dpg.is_item_visible('finished'):
+        dpg.hide_item('finished')
     dpg.show_item('loading')
     prefix = dpg.get_value("prefix")
-    try:
-        dirname = APP_DATA['file_path_name']
-    except KeyError:
-        dirname = ''
     xpos = dpg.get_value('xpos') if dpg.does_item_exist('xpos') else 300
     ypos = dpg.get_value('ypos') if dpg.does_item_exist('ypos') else 30
     rotation = (dpg.get_value('rotation')
                 if dpg.does_item_exist('rotation') else 0)
+    try:
+        dirname = APP_DATA['file_path_name']
+    except KeyError:
+        dpg.hide_item('loading')
+        show_info('Error', 'No directory selected. Please select a directory',
+                  on_selection)
+        return
 
-    bates(prefix=prefix, dirname=dirname, x=xpos, y=ypos, rotation=rotation)
+    try:
+        bates(prefix=prefix, dirname=dirname, x=xpos, y=ypos,
+              rotation=rotation)
+    except ValueError as ve:
+        msg = str(ve)
+        dpg.hide_item('loading')
+        show_info('Error', msg, on_selection)
+        return
+
     dpg.hide_item('loading')
     dpg.show_item('finished')
     dpg.set_value('dirtext', '')
@@ -54,7 +69,7 @@ with dpg.window(label="Bates Stamp", width=600, height=400, tag="Bates Stamp"):
     dpg.add_file_dialog(directory_selector=True, show=False,
                         callback=check_dir,
                         tag="file_dialog_id",
-                        width=500, height=220)
+                        width=500, height=400)
 
     dpg.add_button(label="Choose a Directory",
                    callback=lambda: dpg.show_item("file_dialog_id"))
@@ -90,7 +105,7 @@ with dpg.window(label="Bates Stamp", width=600, height=400, tag="Bates Stamp"):
     dpg.add_button(label='Stamp!', callback=stamp_files, pos=(150, 250),
                    tag='stamp')
     dpg.bind_item_theme('stamp', 'rounded')
-  
+
 dpg.create_viewport(title='Bates Stamp', width=800, height=600)
 dpg.setup_dearpygui()
 dpg.show_viewport()
