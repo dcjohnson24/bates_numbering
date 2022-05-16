@@ -1,4 +1,6 @@
 .venv
+__pycache__
+
 *.pdf
 
 bates_example_w_errors.py

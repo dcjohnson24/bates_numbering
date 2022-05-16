@@ -25,3 +25,6 @@ optional arguments:
 Run `bates.py` from the command line with `python bates.py sampleText sampleDir`.
 The default position of the text is at the bottom center of the page, where `x` is 300 and `y` is 30.
 As `x` increases, the text moves to the right of the page. As `y` increases, the text moves to the top of the page.
+
+## GUI 
+Run the GUI with `cd gui && python gui.py`. Note that the GUI must be run from the `gui` directory.
