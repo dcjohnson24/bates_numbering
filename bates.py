@@ -1,4 +1,6 @@
 import os
+
+import PyPDF2
 from marisol import Marisol, Area
 from tqdm import tqdm
 import argparse
@@ -31,11 +33,20 @@ def bates(dirname: str, prefix: str = '', zero_pad_length: int = 6,
                  if os.path.isfile(os.path.join(dirname, f))
                  if f.endswith('.pdf')]
     if not file_list:
-        raise ValueError("Please select a directory containing pdf files")
+        raise PyPDF2.utils.PdfReadError(
+            "Please select a directory containing PDF files."
+        )
     pbar = tqdm(file_list)
     for f in pbar:
         pbar.set_description(f'Processing {f}')
-        m.append(f)
+        try:
+            m.append(f)
+        except PyPDF2.utils.PdfReadError as re:
+            if 'malformed' in str(re).lower():
+                raise PyPDF2.utils.PdfReadError(
+                    f"{f} is malformed and cannot be processed.\n"
+                    "Remove this file from the directory and try again."
+                )
     m.save(overwrite=True)
 
 
