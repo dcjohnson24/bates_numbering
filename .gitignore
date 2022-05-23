@@ -1,6 +1,6 @@
 .venv
 __pycache__
-
+.vscode
 *.pdf
 
 bates_example_w_errors.py
