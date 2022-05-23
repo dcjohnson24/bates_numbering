@@ -1,5 +1,6 @@
 import os
 import sys
+import PyPDF2
 
 sys.path.append(os.pardir)
 
@@ -41,8 +42,8 @@ def stamp_files(sender, app_data):
     try:
         bates(prefix=prefix, dirname=dirname, x=xpos, y=ypos,
               rotation=rotation)
-    except ValueError as ve:
-        msg = str(ve)
+    except PyPDF2.utils.PdfReadError as re:
+        msg = str(re)
         dpg.hide_item('loading')
         show_info('Error', msg, on_selection)
         return
