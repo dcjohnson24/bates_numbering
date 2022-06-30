@@ -1,5 +1,8 @@
+#!python3.8
 import os
 import sys
+import site
+
 import PyPDF2
 
 sys.path.append(os.pardir)
@@ -8,6 +11,12 @@ import dearpygui.dearpygui as dpg
 from dearpygui.demo import _hsv_to_rgb
 from bates import bates
 from error_box import show_info, on_selection
+
+scriptdir, script = os.path.split(os.path.abspath(__file__))
+pkgdir = os.path.join(scriptdir, 'pkgs')
+# Ensure .pth files in pkgdir are handled properly
+site.addsitedir(pkgdir)
+sys.path.insert(0, pkgdir)
 
 dpg.create_context()
 
