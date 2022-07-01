@@ -1,4 +1,4 @@
-Marisol==0.3.0
+-e git+https://github.com/dcjohnson24/Marisol.git@feature/text_placement#egg=Marisol
 ipython==7.31.1
 flake8==3.9.1
 tqdm==4.60.0

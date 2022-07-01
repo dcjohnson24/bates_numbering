@@ -1,8 +1,8 @@
 # Bates Numbering
 
-This is based on the `Marisol` project on [PyPI](https://pypi.org/project/Marisol/). A few tweaks were made to change the position and rotation of the text. These can be found in `marisol.py`. 
+This is based on the [`Marisol`](https://github.com/wikkiewikkie/Marisol) project. A few tweaks were made to change the position and rotation of the text. These can be found in [`marisol.py`](https://github.com/dcjohnson24/Marisol/blob/feature/text_placement/marisol/marisol.py). 
 
-Create a virtual environment with `virtualenv -p python3.8 .venv`. Install the required packages with `pip install -r requirements.txt`, and copy `marisol.py` to the folder `.venv/lib/python3.8/site-packages/marisol/` to get the relevant changes. The python version number should be >= 3.5.
+Create a virtual environment with `virtualenv -p python3.8 .venv`. Install the required packages with `pip install -r requirements.txt`. The python version number should be >= 3.5.
 
 ## Usage
 ```bash
