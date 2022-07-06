@@ -46,3 +46,11 @@ Then stamp the documents using `python bates.py mydocs --prefix Important_`
 
 ## GUI 
 Run the GUI with `cd gui && python gui.py`. Note that the GUI must be run from the `gui` directory.
+
+## Platform Installer
+
+### Windows
+Install [NSIS](https://nsis.sourceforge.io/Download). Run `pynsist installer.cfg` to create your own `.exe` from `gui.py`. You can then distribute the resulting `Bates_Numbering_1.0.exe` file in the `build` directory.
+
+# MacOS
+TBD
