@@ -7,7 +7,7 @@ Create a virtual environment with `virtualenv -p python3.8 .venv`. Install the r
 ## Usage
 ```bash
 
-user@desktop:~/bates_numbering$ python bates.py -h
+user@desktop:~/bates_numbering$ python run_bates.py -h
 usage: bates.py [-h] [--prefix PREFIX] [--x X] [--y Y] [--rotation ROTATION] [--no-manual] dirname
 
 Change string prefix of Bates number
@@ -42,15 +42,15 @@ for i in range(3):
   pdf.save()
 ```
 
-Then stamp the documents using `python bates.py mydocs --prefix Important_`
+Then stamp the documents using `python run_bates.py mydocs --prefix Important_`
 
 ## GUI 
-Run the GUI with `cd gui && python gui.py`. Note that the GUI must be run from the `gui` directory.
+Run the GUI with `python run_gui.py`.
 
 ## Platform Installer
 
 ### Windows
-Install [NSIS](https://nsis.sourceforge.io/Download). Run `pynsist installer.cfg` to create your own `.exe` from `gui.py`. You can then distribute the resulting `Bates_Numbering_1.0.exe` file in the `build` directory.
+Install [NSIS](https://nsis.sourceforge.io/Download). Install the latest version from the link because `apt-get install` only installs version 3.0.5. If this doesn't work on Windows 10, try installing version 3.0.1. See this [GitHub Issue](https://github.com/electron-userland/electron-builder/issues/2134) for details. Run `pynsist installer.cfg` to create your own `.exe` from `gui.py`. You can then distribute the resulting `Bates_Numbering_1.0.exe` file in the `build` directory.
 
 # MacOS
 TBD
