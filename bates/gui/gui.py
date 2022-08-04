@@ -1,9 +1,9 @@
 #!python3.8
 import PyPDF4
 from pathlib import Path
-
 import dearpygui.dearpygui as dpg
 from dearpygui.demo import _hsv_to_rgb
+
 from ..bates import bates
 from .error_box import show_info, on_selection
 
@@ -16,30 +16,50 @@ def check_dir(sender, app_data):
     if dpg.is_item_visible('finished'):
         dpg.hide_item('finished')
     dirname = app_data['file_path_name']
-    dpg.set_value("dirtext", f"{dirname} has been selected")
-    APP_DATA['file_path_name'] = dirname
+    msg = f"{dirname} has been selected"
+    if sender == 'input_dir':
+        dpg.set_value("indir_text", msg)
+    elif sender == 'output_dir':
+        dpg.set_value('outdir_text', msg)
+    APP_DATA[sender] = dirname
 
 
 def stamp_files(sender, app_data):
     if dpg.is_item_visible('finished'):
         dpg.hide_item('finished')
-    dpg.show_item('loading')
+
     prefix = dpg.get_value("prefix")
     xpos = dpg.get_value('xpos') if dpg.does_item_exist('xpos') else 300
     ypos = dpg.get_value('ypos') if dpg.does_item_exist('ypos') else 30
     rotation = (dpg.get_value('rotation')
                 if dpg.does_item_exist('rotation') else 0)
     try:
-        dirname = APP_DATA['file_path_name']
+        input_dir = APP_DATA['input_dir']
     except KeyError:
         dpg.hide_item('loading')
-        show_info('Error', 'No directory selected. Please select a directory',
-                  on_selection)
+        show_info(
+            title='Error',
+            message='No directory selected. Please select a directory',
+            selection_callback=on_selection
+        )
         return
 
     try:
-        bates(prefix=prefix, dirname=dirname, x=xpos, y=ypos,
-              rotation=rotation)
+        output_dir = APP_DATA['output_dir']
+    except KeyError:
+        output_dir = None
+        msg = (
+            f"No output directory selected.\nStamped documents "
+            f"will be saved in {Path.home() / 'Documents'}"
+        )
+        with dpg.window(label="Note", pos=(250, 250)):
+            dpg.add_text(msg)
+
+    try:
+        dpg.show_item('loading')
+        bates(prefix=prefix, dirname=input_dir, x=xpos, y=ypos,
+              rotation=rotation, output_dir=output_dir)
+
     except PyPDF4.utils.PdfReadError as re:
         msg = str(re)
         dpg.hide_item('loading')
@@ -48,7 +68,8 @@ def stamp_files(sender, app_data):
 
     dpg.hide_item('loading')
     dpg.show_item('finished')
-    dpg.set_value('dirtext', '')
+    dpg.set_value('indir_text', '')
+    dpg.set_value('outdir_text', '')
 
 
 def show_group(sender, app_data, user_data):
@@ -63,19 +84,29 @@ def main():
         font_file = str(Path(__file__).parent / 'NotoSerifCJKjp-Medium.otf')
         default_font = dpg.add_font(font_file, 18)
 
-    with dpg.window(label="Bates Stamp", width=600, height=400,
+    with dpg.window(label="Bates Stamp", width=800, height=600,
                     tag="Bates Stamp"):
         dpg.bind_font(default_font)
 
         dpg.add_file_dialog(directory_selector=True, show=False,
                             callback=check_dir,
-                            tag="file_dialog_id",
+                            tag="input_dir",
                             width=500, height=400)
 
-        dpg.add_button(label="Choose a Directory",
-                       callback=lambda: dpg.show_item("file_dialog_id"))
+        dpg.add_button(label="Choose directory containing files to be stamped",
+                       callback=lambda: dpg.show_item("input_dir"))
 
-        dpg.add_text('', tag="dirtext", color=(255, 255, 0))
+        dpg.add_text('', tag="indir_text", color=(255, 255, 0))
+
+        dpg.add_file_dialog(directory_selector=True, show=False,
+                            callback=check_dir,
+                            tag='output_dir',
+                            width=500, height=400)
+
+        dpg.add_button(label="Choose output directory for stamped files",
+                       callback=lambda: dpg.show_item('output_dir'))
+
+        dpg.add_text('', tag='outdir_text', color=(255, 255, 0))
 
         dpg.add_input_text(label="Bates Prefix", tag="prefix")
 

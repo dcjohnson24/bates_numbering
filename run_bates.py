@@ -20,13 +20,15 @@ def main():
                         help='whether to manually set the text position.'
                         'True if called, false otherwise',
                         action='store_true')
+    parser.add_argument('--output-dir', help='directory for stamped documents',
+                        type=str)
     args = parser.parse_args()
     if args.no_manual:
         manual = False
     else:
         manual = True
     bates(dirname=args.dirname, prefix=args.prefix, x=args.x, y=args.y,
-          rotation=args.rotation, manual=manual)
+          rotation=args.rotation, manual=manual, output_dir=args.output_dir)
 
 
 main()
