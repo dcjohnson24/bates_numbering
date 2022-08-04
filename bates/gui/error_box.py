@@ -4,7 +4,6 @@ import dearpygui.dearpygui as dpg
 
 
 def show_info(title, message, selection_callback):
-
     # guarantee these commands happen in the same frame
     with dpg.mutex():
 
@@ -17,7 +16,6 @@ def show_info(title, message, selection_callback):
                 dpg.add_button(label="Ok", width=75,
                                user_data=(modal_id, True),
                                callback=selection_callback)
-
     # guarantee these commands happen in another frame
     dpg.split_frame()
     width = dpg.get_item_width(modal_id)
@@ -27,6 +25,5 @@ def show_info(title, message, selection_callback):
 
 
 def on_selection(sender, unused, user_data):
-    print(user_data)
     # delete window
     dpg.delete_item(user_data[0])
