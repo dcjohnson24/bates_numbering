@@ -30,7 +30,7 @@ def bates(dirname: str, prefix: str = '', zero_pad_length: int = 6,
             Defaults to a directory called 'output'
     """
     if output_dir is None:
-        now = datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+        now = datetime.now().strftime('%d-%m-%Y_%H%M%S')
         output_dir = Path.home() / 'Documents' / f'stamped_docs_{now}'
         output_dir.mkdir(parents=True, exist_ok=True)
 
