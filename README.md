@@ -2,7 +2,7 @@
 
 This is based on the [`Marisol`](https://github.com/wikkiewikkie/Marisol) project. A few tweaks were made to change the position and rotation of the text. These can be found in [`marisol.py`](https://github.com/dcjohnson24/Marisol/blob/feature/text_placement/marisol/marisol.py). 
 
-Create a virtual environment with `virtualenv -p python3.8 .venv`. Install the required packages with `pip install -r requirements.txt`. The python version number should be >= 3.5.
+Clone the repository and create a virtual environment with `virtualenv -p python3.8 .venv`. Any Python version above 3.5 should work. Install the required packages with `pip install -r requirements.txt`. 
 
 ## Usage
 ```bash
@@ -50,7 +50,7 @@ Run the GUI with `python run_gui.py`.
 ## Platform Installer
 
 ### Windows
-Install [NSIS](https://nsis.sourceforge.io/Download). Install the latest version from the link because `apt-get install` only installs version 3.0.5. If this doesn't work on Windows 10, try installing version 3.0.1. See this [GitHub Issue](https://github.com/electron-userland/electron-builder/issues/2134) for details. Run `pynsist installer.cfg` to create your own `.exe` from `gui.py`. You can then distribute the resulting `Bates_Numbering_1.0.exe` file in the `build` directory.
+Install [NSIS](https://nsis.sourceforge.io/Download). It is recommended to install the latest version from the link because `apt-get install` only installs version 3.0.5. If the latest version doesn't work on Windows 10, try installing version 3.0.1. See this [GitHub Issue](https://github.com/electron-userland/electron-builder/issues/2134) for details. Run `pynsist installer.cfg` to create your own `.exe`. You can then distribute the resulting `.exe` file in the `build` directory. This has been tested on Windows 10 Home. 
 
-# MacOS
+### MacOS
 TBD
