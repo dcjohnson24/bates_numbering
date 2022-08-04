@@ -1,14 +1,15 @@
 import os
 
-import PyPDF2
+import PyPDF4
 from marisol import Marisol, Area
 from tqdm import tqdm
-import argparse
+from pathlib import Path
+from datetime import datetime
 
 
 def bates(dirname: str, prefix: str = '', zero_pad_length: int = 6,
           start: int = 1, x: int = 300, y: int = 30, rotation: int = 0,
-          manual: bool = True) -> None:
+          manual: bool = True, output_dir: str = None) -> None:
 
     """ Stamp bates numbers on bottom of document
 
@@ -25,15 +26,23 @@ def bates(dirname: str, prefix: str = '', zero_pad_length: int = 6,
             Text moves up as y increases.
         rotation (int, optional): angle of rotation of text.
         manual (bool, optional): whether to manually position text.
+        output_dir (str, optional): Where to save the stamped files.
+            Defaults to a directory called 'output'
     """
+    if output_dir is None:
+        now = datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+        output_dir = Path.home() / 'Documents' / f'stamped_docs_{now}'
+        output_dir.mkdir(parents=True, exist_ok=True)
 
     m = Marisol(prefix, zero_pad_length, start, area=Area.BOTTOM_RIGHT, x=x,
-                y=y, rotation=rotation, manual=manual)
+                y=y, rotation=rotation, manual=manual, output_dir=output_dir)
+
     file_list = [os.path.join(dirname, f) for f in os.listdir(dirname)
                  if os.path.isfile(os.path.join(dirname, f))
                  if f.endswith('.pdf')]
+
     if not file_list:
-        raise PyPDF2.utils.PdfReadError(
+        raise PyPDF4.utils.PdfReadError(
             "Please select a directory containing PDF files."
         )
     pbar = tqdm(file_list)
@@ -41,36 +50,11 @@ def bates(dirname: str, prefix: str = '', zero_pad_length: int = 6,
         pbar.set_description(f'Processing {f}')
         try:
             m.append(f)
-        except PyPDF2.utils.PdfReadError as re:
+        except PyPDF4.utils.PdfReadError as re:
             if 'malformed' in str(re).lower():
-                raise PyPDF2.utils.PdfReadError(
+                raise PyPDF4.utils.PdfReadError(
                     f"{f} is malformed and cannot be processed.\n"
                     "Remove this file from the directory and try again."
                 )
+
     m.save(overwrite=True)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Change string prefix of Bates number')
-    parser.add_argument('dirname', type=str,
-                        help='directory with the unstamped files')
-    parser.add_argument('--prefix', type=str,
-                        help='string prefix for the Bates number', default='')
-    parser.add_argument('--x', help='horizontal position of text', type=int,
-                        default=300)
-    parser.add_argument('--y', help='vertical position of text', type=int,
-                        default=30)
-    parser.add_argument('--rotation', help='rotation of the text', type=int,
-                        default=0)
-    parser.add_argument('--no-manual',
-                        help='whether to manually set the text position.'
-                        'True if called, false otherwise',
-                        action='store_true')
-    args = parser.parse_args()
-    if args.no_manual:
-        manual = False
-    else:
-        manual = True
-    bates(dirname=args.dirname, prefix=args.prefix, x=args.x, y=args.y,
-          rotation=args.rotation, manual=manual)
