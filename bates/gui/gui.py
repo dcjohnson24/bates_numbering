@@ -27,6 +27,11 @@ def check_dir(sender, app_data):
 def stamp_files(sender, app_data):
     if dpg.is_item_visible('finished'):
         dpg.hide_item('finished')
+    try:
+        if dpg.is_item_visible('OutputDir'):
+            dpg.delete_item('OutputDir')
+    except SystemError:
+        pass
 
     prefix = dpg.get_value("prefix")
     xpos = dpg.get_value('xpos') if dpg.does_item_exist('xpos') else 300
@@ -52,7 +57,7 @@ def stamp_files(sender, app_data):
             f"No output directory selected.\nStamped documents "
             f"will be saved in {Path.home() / 'Documents'}"
         )
-        with dpg.window(label="Note", pos=(250, 250)):
+        with dpg.window(label="Note", pos=(250, 250), no_collapse=True):
             dpg.add_text(msg)
 
     try:
@@ -68,8 +73,18 @@ def stamp_files(sender, app_data):
 
     dpg.hide_item('loading')
     dpg.show_item('finished')
+    with dpg.window(tag="OutputDir", pos=(150, 450), no_collapse=True):
+        if output_dir is None:
+            dpg.add_text(f"Stamped files are saved in "
+                         f"{Path.home() / 'Documents'}")
+        else:
+            dpg.add_text(f"Stamped files are saved in {output_dir}")
+
+    dpg.remove_alias('OutputDir')
     dpg.set_value('indir_text', '')
     dpg.set_value('outdir_text', '')
+
+    APP_DATA.clear()
 
 
 def show_group(sender, app_data, user_data):
@@ -85,7 +100,7 @@ def main():
         default_font = dpg.add_font(font_file, 18)
 
     with dpg.window(label="Bates Stamp", width=800, height=600,
-                    tag="Bates Stamp"):
+                    tag="Bates Stamp", no_close=True, no_collapse=True):
         dpg.bind_font(default_font)
 
         dpg.add_file_dialog(directory_selector=True, show=False,

@@ -10,7 +10,8 @@ def show_info(title, message, selection_callback):
         viewport_width = dpg.get_viewport_client_width()
         viewport_height = dpg.get_viewport_client_height()
 
-        with dpg.window(label=title, modal=True, no_close=True) as modal_id:
+        with dpg.window(label=title, modal=True, no_close=True,
+                        no_collapse=True) as modal_id:
             dpg.add_text(message)
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Ok", width=75,
