@@ -145,12 +145,12 @@ def main():
                 dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 3*3, 3*3)
 
         dpg.add_loading_indicator(tag="loading", parent="Bates Stamp",
-                                  show=False, pos=(150, 300))
+                                  show=False, pos=(150, 350))
 
-        dpg.add_text('All finished!', tag='finished', pos=(150, 350),
+        dpg.add_text('All finished!', tag='finished', pos=(150, 400),
                      show=False, parent="Bates Stamp")
 
-        dpg.add_button(label='Stamp!', callback=stamp_files, pos=(150, 250),
+        dpg.add_button(label='Stamp!', callback=stamp_files, pos=(150, 300),
                        tag='stamp')
         dpg.bind_item_theme('stamp', 'rounded')
 
