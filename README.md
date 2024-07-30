@@ -2,26 +2,28 @@
 
 This is based on the [`Marisol`](https://github.com/wikkiewikkie/Marisol) project. A few tweaks were made to change the position and rotation of the text. These can be found in [`marisol.py`](https://github.com/dcjohnson24/Marisol/blob/feature/text_placement/marisol/marisol.py). 
 
-Clone the repository and create a virtual environment with `virtualenv -p python3.8 .venv`. Any Python version above 3.5 should work. Install the required packages with `pip install -r requirements.txt`. 
+Clone the repository and create a virtual environment with `virtualenv -p python3.8 .venv`. Any Python version above 3.5 should work. Install the required packages with `pip install -r requirements.txt`. You may need to install `PyPDF2` and `reportlab` before installing `requirements.txt`.
 
 ## Usage
 ```bash
-
 user@desktop:~/bates_numbering$ python run_bates.py -h
-usage: bates.py [-h] [--prefix PREFIX] [--x X] [--y Y] [--rotation ROTATION] [--no-manual] dirname
+usage: run_bates.py [-h] [--prefix PREFIX] [--x X] [--y Y] [--rotation ROTATION]
+                    [--no-manual]
+                    dirname output-dir
 
 Change string prefix of Bates number
 
 positional arguments:
   dirname              directory with the unstamped files
+  output-dir           directory for stamped documents
 
-optional arguments:
+options:
   -h, --help           show this help message and exit
   --prefix PREFIX      string prefix for the Bates number
   --x X                horizontal position of text
   --y Y                vertical position of text
   --rotation ROTATION  rotation of the text
-  --no-manual          whether to manually set the text position.True if called, false otherwise
+  --no-manual          whether to manually set the text position.True if called, false otherwise 
 ```
 
 The default position of the text is at the bottom center of the page, where `x` is 300 and `y` is 30.

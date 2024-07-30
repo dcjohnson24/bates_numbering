@@ -8,6 +8,8 @@ def main():
         description='Change string prefix of Bates number')
     parser.add_argument('dirname', type=str,
                         help='directory with the unstamped files')
+    parser.add_argument('output-dir', help='directory for stamped documents',
+                        type=str)
     parser.add_argument('--prefix', type=str,
                         help='string prefix for the Bates number', default='')
     parser.add_argument('--x', help='horizontal position of text', type=int,
@@ -20,14 +22,13 @@ def main():
                         help='whether to manually set the text position.'
                         'True if called, false otherwise',
                         action='store_true')
-    parser.add_argument('--output-dir', help='directory for stamped documents',
-                        type=str)
+
     args = parser.parse_args()
     if args.no_manual:
         manual = False
     else:
         manual = True
-    bates(dirname=args.dirname, prefix=args.prefix, x=args.x, y=args.y,
+    bates.bates(dirname=args.dirname, prefix=args.prefix, x=args.x, y=args.y,
           rotation=args.rotation, manual=manual, output_dir=args.output_dir)
 
 
